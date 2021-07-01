@@ -162,7 +162,7 @@ impl XMLElement {
         self.write_level(writer, 0)
     }
 
-    pub fn write_level<W: Write>(&self, writer: &mut W, level: usize) -> Result<()> {
+    fn write_level<W: Write>(&self, writer: &mut W, level: usize) -> Result<()> {
         let indent = "\t".repeat(level);
 
         match &self.content {
@@ -285,5 +285,37 @@ mod tests {
             expected,
             "Both values does not match..."
         );
+    }
+
+    #[test]
+    fn test_complex_xml() {
+        let mut xml = XML::new();
+        xml.set_version("1.1".into());
+        xml.set_encoding("UTF-8".into());
+
+        let mut house = XMLElement::new("house");
+        house.add_attribute("rooms", "2");
+
+        for i in 1..=2 {
+            let mut room = XMLElement::new("room");
+            room.add_attribute("number", &i.to_string());
+            room.add_text(format!("This is room number {}", i)).unwrap();
+            
+            house.add_child(room).unwrap();
+        }
+
+        xml.set_root_element(house);
+
+        let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
+<house rooms=\"2\">
+\t<room number=\"1\">This is room number 1</room>
+\t<room number=\"2\">This is room number 2</room>
+</house>\n";
+
+        assert_eq!(
+            format!("{}", xml),
+            expected,
+            "Both values does not match..."
+        )
     }
 }
