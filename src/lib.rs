@@ -36,6 +36,17 @@ impl Display for XML {
     }
 }
 
+impl Default for XML {
+    fn default() -> Self {
+        XML {
+            version: "1.0".into(),
+            encoding: "UTF-8".into(),
+            custom_header: None,
+            root: None,
+        }
+    }
+}
+
 pub struct XML {
     version: String,
     encoding: String,
@@ -45,12 +56,7 @@ pub struct XML {
 
 impl XML {
     pub fn new() -> Self {
-        XML {
-            version: "1.0".into(),
-            encoding: "UTF-8".into(),
-            custom_header: None,
-            root: None,
-        }
+        XML::default()
     }
 
     pub fn set_version(&mut self, version: String) {
@@ -300,7 +306,7 @@ mod tests {
             let mut room = XMLElement::new("room");
             room.add_attribute("number", &i.to_string());
             room.add_text(format!("This is room number {}", i)).unwrap();
-            
+
             house.add_child(room).unwrap();
         }
 
@@ -317,5 +323,21 @@ mod tests {
             expected,
             "Both values does not match..."
         )
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_panic_child_for_text_element() {
+        let xml = XML::new();
+
+        let mut xml_child = XMLElement::new("panic");
+        xml_child
+            .add_text("This should panic right after this...".into())
+            .unwrap();
+
+        let xml_child2 = XMLElement::new("sorry");
+        xml_child.add_child(xml_child2).unwrap();
+
+        xml.render(std::io::stdout()).unwrap();
     }
 }
