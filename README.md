@@ -1,5 +1,8 @@
 # xml-builder
 
+[![Documentation](https://docs.rs/xml-builder/badge.svg)](https://docs.rs/xml-builder)
+[![Latest version](https://img.shields.io/crates/v/xml-builder.svg)](https://crates.io/crates/xml-builder)
+
 This crate allows you to easily create an XML file in a short time by building an object tree. Its use is made to be very easy and intuitive.
 
 Feel free to contribute to the project and adding your PR's !
