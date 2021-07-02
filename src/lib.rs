@@ -6,6 +6,7 @@ use std::usize;
 
 type Result<T> = std::result::Result<T, XMLError>;
 
+/// Error type thrown by this crate
 pub enum XMLError {
     WrongInsert(String),
     WriteError(String),
@@ -47,6 +48,8 @@ impl Default for XML {
     }
 }
 
+/// Structure representing a XML document.
+/// It must be used to create a XML document.
 pub struct XML {
     version: String,
     encoding: String,
@@ -55,26 +58,34 @@ pub struct XML {
 }
 
 impl XML {
+    /// Instantiates a XML object.
     pub fn new() -> Self {
         XML::default()
     }
 
+    /// Sets the XML version attribute field.
     pub fn set_version(&mut self, version: String) {
         self.version = version;
     }
 
+    /// Sets the XML encoding attribute field.
     pub fn set_encoding(&mut self, encoding: String) {
         self.encoding = encoding;
     }
 
+    /// Sets a custom XML header.
+    /// Be careful, no syntax and semantic verifications are made on this header.
     pub fn set_custom_header(&mut self, header: String) {
         self.custom_header = Some(header);
     }
 
+    /// Sets the XML document root element.
     pub fn set_root_element(&mut self, element: XMLElement) {
         self.root = Some(element);
     }
 
+    /// Renders an XML document into the specified writer implementing Write trait.
+    /// Does not take ownership of the object.
     pub fn render<W: Write>(&self, mut writer: W) -> Result<()> {
         // Rendering first XML header line...
         if let Some(header) = &self.custom_header {
@@ -89,17 +100,20 @@ impl XML {
 
         // And then XML elements if present...
         if let Some(elem) = &self.root {
-            elem.write(&mut writer)?;
+            elem.render(&mut writer)?;
         }
 
         Ok(())
     }
 
+    /// Builds an XML document into the specified writer implementing Write trait.
+    /// Consumes the XML object.
     pub fn build<W: Write>(self, writer: W) -> Result<()> {
         self.render(writer)
     }
 }
 
+/// Structure representing an XML element field.
 pub struct XMLElement {
     name: String,
     attributes: HashMap<String, String>,
@@ -107,6 +121,11 @@ pub struct XMLElement {
 }
 
 impl XMLElement {
+    /// Instantiates a XMLElement object.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - A string slice that holds the name of the XML element.
     pub fn new(name: &str) -> Self {
         XMLElement {
             name: name.to_owned(),
@@ -115,10 +134,22 @@ impl XMLElement {
         }
     }
 
+    /// Adds the given name/value attribute to the XMLElement.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - A string slice that holds the name of the attribute
+    /// * `value` - A string slice that holds the value of the attribute
     pub fn add_attribute(&mut self, name: &str, value: &str) {
         self.attributes.insert(name.to_owned(), escape_str(value));
     }
 
+    /// Adds a new XMLElement child object to the references XMLElement.
+    /// Raises a XMLError if trying to add a child to a text XMLElement.
+    ///
+    /// # Arguments
+    ///
+    /// * `element` - A XMLElement object to add as child
     pub fn add_child(&mut self, element: XMLElement) -> Result<()> {
         match self.content {
             XMLElementContent::Empty => {
@@ -137,6 +168,12 @@ impl XMLElement {
         Ok(())
     }
 
+    /// Adds text content to a XMLElement object.
+    /// Raises a XMLError if trying to add text to a non-empty object.
+    ///
+    /// # Arguments
+    ///
+    /// * `text` - A string containing the text to add to the object
     pub fn add_text(&mut self, text: String) -> Result<()> {
         match self.content {
             XMLElementContent::Empty => {
@@ -152,6 +189,7 @@ impl XMLElement {
         Ok(())
     }
 
+    /// Internal method rendering an attribute list to a String.
     fn attributes_as_string(&self) -> String {
         if self.attributes.is_empty() {
             "".to_owned()
@@ -164,11 +202,23 @@ impl XMLElement {
         }
     }
 
-    pub fn write<W: Write>(&self, writer: &mut W) -> Result<()> {
-        self.write_level(writer, 0)
+    /// Renders an XMLElement object into the specified writer implementing Write trait.
+    /// Does not take ownership of the object.
+    ///
+    /// # Arguments
+    ///
+    /// * `writer` - An object to render the referenced XMLElement to
+    pub fn render<W: Write>(&self, writer: &mut W) -> Result<()> {
+        self.render_level(writer, 0)
     }
 
-    fn write_level<W: Write>(&self, writer: &mut W, level: usize) -> Result<()> {
+    /// Internal method rendering and indenting a XMLELement object
+    ///
+    /// # Arguments
+    ///
+    /// * `writer` - An object to render the referenced XMLElement to
+    /// * `level` - An usize representing the depth of the XML tree. Used to indent the object. 
+    fn render_level<W: Write>(&self, writer: &mut W, level: usize) -> Result<()> {
         let indent = "\t".repeat(level);
 
         match &self.content {
@@ -190,7 +240,7 @@ impl XMLElement {
                     self.attributes_as_string()
                 )?;
                 for elem in elements {
-                    elem.write_level(writer, level + 1)?;
+                    elem.render_level(writer, level + 1)?;
                 }
                 writeln!(writer, "{}</{}>", indent, self.name)?;
             }

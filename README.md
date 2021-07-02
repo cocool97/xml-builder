@@ -13,7 +13,7 @@ To use this crate you just need to add this to your `Cargo.toml` file:
 
 ```toml
 [dependancies]
-xml-builder = "*" 
+xml-builder = "*"
 ```
 
 ## Examples
