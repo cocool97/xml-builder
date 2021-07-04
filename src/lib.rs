@@ -42,6 +42,7 @@ impl Default for XML {
         XML {
             version: "1.0".into(),
             encoding: "UTF-8".into(),
+            should_render_header: true,
             custom_header: None,
             root: None,
         }
@@ -53,6 +54,7 @@ impl Default for XML {
 pub struct XML {
     version: String,
     encoding: String,
+    should_render_header: bool,
     custom_header: Option<String>,
     root: Option<XMLElement>,
 }
@@ -61,6 +63,13 @@ impl XML {
     /// Instantiates a XML object.
     pub fn new() -> Self {
         XML::default()
+    }
+
+    /// Does not render XML header for this document
+    ///
+    /// Can be used in case of a custom XML implementation such as XMLTV
+    pub fn set_header_rendering(&mut self, asked: bool) {
+        self.should_render_header = asked;
     }
 
     /// Sets the XML version attribute field.
@@ -74,6 +83,7 @@ impl XML {
     }
 
     /// Sets a custom XML header.
+    ///
     /// Be careful, no syntax and semantic verifications are made on this header.
     pub fn set_custom_header(&mut self, header: String) {
         self.custom_header = Some(header);
@@ -85,17 +95,20 @@ impl XML {
     }
 
     /// Renders an XML document into the specified writer implementing Write trait.
+    ///
     /// Does not take ownership of the object.
     pub fn render<W: Write>(&self, mut writer: W) -> Result<()> {
-        // Rendering first XML header line...
-        if let Some(header) = &self.custom_header {
-            writeln!(writer, r#"<{}>"#, header)?;
-        } else {
-            writeln!(
-                writer,
-                r#"<?xml version="{}" encoding="{}"?>"#,
-                self.version, self.encoding
-            )?;
+        // Rendering first XML header line if asked...
+        if self.should_render_header {
+            if let Some(header) = &self.custom_header {
+                writeln!(writer, r#"<{}>"#, header)?;
+            } else {
+                writeln!(
+                    writer,
+                    r#"<?xml version="{}" encoding="{}"?>"#,
+                    self.version, self.encoding
+                )?;
+            }
         }
 
         // And then XML elements if present...
@@ -107,6 +120,7 @@ impl XML {
     }
 
     /// Builds an XML document into the specified writer implementing Write trait.
+    ///
     /// Consumes the XML object.
     pub fn build<W: Write>(self, writer: W) -> Result<()> {
         self.render(writer)
@@ -217,7 +231,7 @@ impl XMLElement {
     /// # Arguments
     ///
     /// * `writer` - An object to render the referenced XMLElement to
-    /// * `level` - An usize representing the depth of the XML tree. Used to indent the object. 
+    /// * `level` - An usize representing the depth of the XML tree. Used to indent the object.
     fn render_level<W: Write>(&self, writer: &mut W, level: usize) -> Result<()> {
         let indent = "\t".repeat(level);
 
