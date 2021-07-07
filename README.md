@@ -3,7 +3,15 @@
 [![Documentation](https://docs.rs/xml-builder/badge.svg)](https://docs.rs/xml-builder)
 [![Latest version](https://img.shields.io/crates/v/xml-builder.svg)](https://crates.io/crates/xml-builder)
 
-This crate allows you to easily create an XML file in a short time by building an object tree. Its use is made to be very easy and intuitive.
+This crate allows you to easily create an XML file in a short time by building an object tree. 
+
+Its main advantages are: 
+
+* Fast XML documents creation
+* Low size, good for embedeed systems
+* 0 dependencies
+* Low compilation time
+* High configurability of objects
 
 Feel free to contribute to the project and adding your PR's !
 
@@ -23,6 +31,7 @@ use xml_builder::{XML, XMLElement};
 
 fn main() {
     let mut xml = XML::new();
+    xml.set_attribute_sorting(true);
     xml.set_version("1.1".into());
     xml.set_encoding("UTF-8".into());
 
@@ -31,25 +40,26 @@ fn main() {
 
     for i in 1..=2 {
         let mut room = XMLElement::new("room");
+        room.add_attribute("price", &(42*i).to_string());
         room.add_attribute("number", &i.to_string());
         room.add_text(format!("This is room number {}", i)).unwrap();
-        
+
         house.add_child(room).unwrap();
     }
 
     xml.set_root_element(house);
 
     let mut stdio = std::io::stdout();
-    xml.render(&mut stdio).unwrap();
+    xml.build(&mut stdio).unwrap();
 }
 ```
 
 This XML content will be displayed:
 
 ```xml
-<?xml version="1.1" encoding="UTF-8"?>
+<?xml encoding="UTF-8" version="1.1"?>
 <house rooms="2">
-        <room number="1">This is room number 1</room>
-        <room number="2">This is room number 2</room>
+        <room number="1" price="42">This is room number 1</room>
+        <room number="2" price="84">This is room number 2</room>
 </house>
 ```
