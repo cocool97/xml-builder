@@ -28,7 +28,7 @@ impl Debug for XMLError {
 impl Default for XML {
     fn default() -> Self {
         XML {
-            version: "1.0".into(),
+            version: XMLVersion::XML1_0,
             encoding: "UTF-8".into(),
             should_render_header: true,
             should_sort_attributes: false,
@@ -41,12 +41,42 @@ impl Default for XML {
 /// Structure representing a XML document.
 /// It must be used to create a XML document.
 pub struct XML {
-    version: String,
+    /// The XML version to set for the document.
+    version: XMLVersion,
+
+    /// The encoding to set for the document.
     encoding: String,
+
+    /// Whether the XML header should be rendered or not.
     should_render_header: bool,
+
+    /// Whether the XML attributes should be sorted or not.
     should_sort_attributes: bool,
+
+    /// Specifies a custom header to set for the document.
     custom_header: Option<String>,
+
+    /// The root XML element.
     root: Option<XMLElement>,
+}
+
+/// Enum representing all currently available XML versions.
+pub enum XMLVersion {
+    /// XML version 1.0. First definition in 1998.
+    XML1_0,
+
+    /// XML version 1.1. First definition in 2004.
+    XML1_1,
+}
+
+impl ToString for XMLVersion {
+    /// Converts the XMLVersion enum value into a string usable in the XML document
+    fn to_string(&self) -> String {
+        match self {
+            XMLVersion::XML1_0 => "1.0".into(),
+            XMLVersion::XML1_1 => "1.1".into(),
+        }
+    }
 }
 
 impl XML {
@@ -55,24 +85,40 @@ impl XML {
         XML::default()
     }
 
-    /// Does not render XML header for this document
+    /// Does not render XML header for this document.
     ///
-    /// Can be used in case of a custom XML implementation such as XMLTV
+    /// Can be used in case of a custom XML implementation such as XMLTV.
+    ///
+    /// # Arguments
+    ///
+    /// * `asked` - A boolean value indicating whether we want header rendering.
     pub fn set_header_rendering(&mut self, asked: bool) {
         self.should_render_header = asked;
     }
 
     /// Sets the XML version attribute field.
-    pub fn set_version(&mut self, version: String) {
+    ///
+    /// # Arguments
+    ///
+    /// `version` - An enum value representing the new version to use for the XML.
+    pub fn set_version(&mut self, version: XMLVersion) {
         self.version = version;
     }
 
     /// Sets the XML encoding attribute field.
+    ///
+    /// # Arguments
+    ///
+    /// `encoding` - A String representing the encoding to use for the document.
     pub fn set_encoding(&mut self, encoding: String) {
         self.encoding = encoding;
     }
 
     /// Sets the header attribute sort.
+    ///
+    /// # Arguments
+    ///
+    /// `should_sort` - A boolean value indicating whether we want attributes to be sorted.
     pub fn set_attribute_sorting(&mut self, should_sort: bool) {
         self.should_sort_attributes = should_sort;
     }
@@ -80,8 +126,8 @@ impl XML {
     /// Sets a custom XML header.
     ///
     /// Be careful, no syntax and semantic verifications are made on this header.
-    pub fn set_custom_header(&mut self, header: String) {
-        self.custom_header = Some(header);
+    pub fn set_custom_header(&mut self, custom_header: String) {
+        self.custom_header = Some(custom_header);
     }
 
     /// Sets the XML document root element.
@@ -101,7 +147,8 @@ impl XML {
                 writeln!(
                     writer,
                     r#"<?xml encoding="{}" version="{}"?>"#,
-                    self.encoding, self.version
+                    self.encoding,
+                    self.version.to_string()
                 )?;
             }
         }
@@ -117,10 +164,29 @@ impl XML {
 
 /// Structure representing an XML element field.
 pub struct XMLElement {
+    /// The name of the XML element.
     name: String,
+
+    /// A list of tuple representing (key, value) attributes.
     attributes: Vec<(String, String)>,
+
+    /// A boolean representing whether we want attributes to be sorted.
     should_sort_attributes: Option<bool>,
+
+    /// The content of this XML element.
     content: XMLElementContent,
+}
+
+/// An enum value representing the types of XML contents
+enum XMLElementContent {
+    /// No XML content.
+    Empty,
+
+    /// The content is a list of XML elements.
+    Elements(Vec<XMLElement>),
+
+    /// The content is a textual string.
+    Text(String),
 }
 
 impl XMLElement {
@@ -277,197 +343,4 @@ fn escape_str(input: &str) -> String {
         .replace('\'', "&apos;")
         .replace('<', "&lt;")
         .replace('>', "&gt;")
-}
-
-enum XMLElementContent {
-    Empty,
-    Elements(Vec<XMLElement>),
-    Text(String),
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_xml_default_creation() {
-        let xml = XML::new();
-        let writer = std::io::sink();
-        xml.build(writer).unwrap();
-    }
-
-    #[test]
-    fn test_xml_file_write() {
-        let xml = XML::new();
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-    }
-
-    #[test]
-    fn test_xml_version() {
-        let mut xml = XML::new();
-        xml.set_version("1.1".into());
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-
-        let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>\n";
-        let res = std::str::from_utf8(&writer).unwrap();
-
-        assert_eq!(res, expected, "Both values does not match...");
-    }
-
-    #[test]
-    fn test_xml_encoding() {
-        let mut xml = XML::new();
-        xml.set_encoding("UTF-16".into());
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-
-        let expected = "<?xml encoding=\"UTF-16\" version=\"1.0\"?>\n";
-        let res = std::str::from_utf8(&writer).unwrap();
-
-        assert_eq!(res, expected, "Both values does not match...");
-    }
-
-    #[test]
-    fn test_custom_header() {
-        let mut xml = XML::new();
-        let header = "tv generator-info-name=\"my listings generator\"".into(); // XMLTV header example
-
-        xml.set_custom_header(header);
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-
-        let expected = "<tv generator-info-name=\"my listings generator\">\n";
-        let res = std::str::from_utf8(&writer).unwrap();
-
-        assert_eq!(res, expected, "Both values does not match...");
-    }
-
-    #[test]
-    fn test_complex_xml() {
-        let mut xml = XML::new();
-        xml.set_version("1.1".into());
-        xml.set_encoding("UTF-8".into());
-
-        let mut house = XMLElement::new("house");
-        house.add_attribute("rooms", "2");
-
-        for i in 1..=2 {
-            let mut room = XMLElement::new("room");
-            room.add_attribute("number", &i.to_string());
-            room.add_text(format!("This is room number {}", i)).unwrap();
-
-            house.add_child(room).unwrap();
-        }
-
-        xml.set_root_element(house);
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-
-        let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>
-<house rooms=\"2\">
-\t<room number=\"1\">This is room number 1</room>
-\t<room number=\"2\">This is room number 2</room>
-</house>\n";
-        let res = std::str::from_utf8(&writer).unwrap();
-
-        assert_eq!(res, expected, "Both values does not match...")
-    }
-
-    // Here the `sort` attribute is set to the root, so everything should be sorted
-    #[test]
-    fn test_complex_sorted_root_xml() {
-        let mut xml = XML::new();
-        xml.set_attribute_sorting(true);
-        xml.set_version("1.1".into());
-        xml.set_encoding("UTF-8".into());
-
-        let mut house = XMLElement::new("house");
-        house.add_attribute("rooms", "2");
-
-        for i in 1..=2 {
-            let mut room = XMLElement::new("room");
-            room.add_attribute("size", &(i * 27).to_string());
-            room.add_attribute("number", &i.to_string());
-            room.add_text(format!("This is room number {}", i)).unwrap();
-
-            house.add_child(room).unwrap();
-        }
-
-        xml.set_root_element(house);
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-
-        let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>
-<house rooms=\"2\">
-\t<room number=\"1\" size=\"27\">This is room number 1</room>
-\t<room number=\"2\" size=\"54\">This is room number 2</room>
-</house>\n";
-        let res = std::str::from_utf8(&writer).unwrap();
-
-        assert_eq!(res, expected, "Both values does not match...")
-    }
-
-    // Here the `sort` attribute is set to the an element only, so everything should not be sorted
-    #[test]
-    fn test_complex_sorted_element_xml() {
-        let mut xml = XML::new();
-        xml.set_version("1.1".into());
-        xml.set_encoding("UTF-8".into());
-
-        let mut house = XMLElement::new("house");
-        house.add_attribute("rooms", "2");
-
-        for i in 1..=2 {
-            let mut room = XMLElement::new("room");
-            room.add_attribute("size", &(i * 27).to_string());
-            room.add_attribute("city", ["Paris", "LA"][i - 1]);
-            room.add_attribute("number", &i.to_string());
-            room.add_text(format!("This is room number {}", i)).unwrap();
-
-            if i % 2 == 0 {
-                room.set_attribute_sorting(true);
-            }
-
-            house.add_child(room).unwrap();
-        }
-
-        xml.set_root_element(house);
-
-        let mut writer: Vec<u8> = Vec::new();
-        xml.build(&mut writer).unwrap();
-
-        let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>
-<house rooms=\"2\">
-\t<room size=\"27\" city=\"Paris\" number=\"1\">This is room number 1</room>
-\t<room city=\"LA\" number=\"2\" size=\"54\">This is room number 2</room>
-</house>\n";
-
-        let res = std::str::from_utf8(&writer).unwrap();
-
-        assert_eq!(res, expected, "Both values does not match...")
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_panic_child_for_text_element() {
-        let xml = XML::new();
-
-        let mut xml_child = XMLElement::new("panic");
-        xml_child
-            .add_text("This should panic right after this...".into())
-            .unwrap();
-
-        let xml_child2 = XMLElement::new("sorry");
-        xml_child.add_child(xml_child2).unwrap();
-
-        xml.build(std::io::stdout()).unwrap();
-    }
 }
