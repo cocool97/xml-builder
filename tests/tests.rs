@@ -60,6 +60,61 @@ fn test_custom_header() {
 }
 
 #[test]
+fn test_indent() {
+    let mut xml = XML::new();
+    xml.set_document_indentation(false);
+
+    let mut root = XMLElement::new("root");
+    let first_element_inside = XMLElement::new("indentation");
+    let second_element_inside = XMLElement::new("indentation");
+
+    root.add_child(first_element_inside).unwrap();
+    root.add_child(second_element_inside).unwrap();
+
+    xml.set_root_element(root);
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.build(&mut writer).unwrap();
+
+    let expected = "<?xml encoding=\"UTF-8\" version=\"1.0\"?>
+<root>
+<indentation />
+<indentation />
+</root>\n";
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...");
+}
+
+#[test]
+fn test_xml_version_1_0() {
+    let mut xml = XML::new();
+    xml.set_version(XMLVersion::XML1_0);
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.build(&mut writer).unwrap();
+
+    let expected = "<?xml encoding=\"UTF-8\" version=\"1.0\"?>\n";
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...");
+}
+
+#[test]
+fn test_xml_version_1_1() {
+    let mut xml = XML::new();
+    xml.set_version(XMLVersion::XML1_1);
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.build(&mut writer).unwrap();
+
+    let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>\n";
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...");
+}
+
+#[test]
 #[should_panic]
 fn test_panic_child_for_text_element() {
     let xml = XML::new();

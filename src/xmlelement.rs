@@ -120,8 +120,13 @@ impl XMLElement {
     /// # Arguments
     ///
     /// * `writer` - An object to render the referenced XMLElement to
-    pub fn render<W: Write>(&self, writer: &mut W, should_sort: bool) -> Result<()> {
-        self.render_level(writer, 0, should_sort)
+    pub fn render<W: Write>(
+        &self,
+        writer: &mut W,
+        should_sort: bool,
+        should_indent: bool,
+    ) -> Result<()> {
+        self.render_level(writer, 0, should_sort, should_indent)
     }
 
     /// Internal method rendering and indenting a XMLELement object
@@ -135,8 +140,13 @@ impl XMLElement {
         writer: &mut W,
         level: usize,
         should_sort: bool,
+        should_indent: bool,
     ) -> Result<()> {
-        let indent = "\t".repeat(level);
+        let indent = match should_indent {
+            true => "\t".repeat(level),
+            false => "".into(),
+        };
+
         let attributes = self.attributes_as_string(should_sort);
 
         match &self.content {
@@ -146,7 +156,7 @@ impl XMLElement {
             XMLElementContent::Elements(elements) => {
                 writeln!(writer, "{}<{}{}>", indent, self.name, attributes)?;
                 for elem in elements {
-                    elem.render_level(writer, level + 1, should_sort)?;
+                    elem.render_level(writer, level + 1, should_sort, should_indent)?;
                 }
                 writeln!(writer, "{}</{}>", indent, self.name)?;
             }

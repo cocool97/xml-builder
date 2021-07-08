@@ -20,6 +20,9 @@ pub struct XML {
     /// Specifies a custom header to set for the document.
     custom_header: Option<String>,
 
+    /// Whether we want to indentate the document.
+    should_indent: bool,
+
     /// The root XML element.
     root: Option<XMLElement>,
 }
@@ -32,6 +35,7 @@ impl Default for XML {
             should_render_header: true,
             should_sort_attributes: false,
             custom_header: None,
+            should_indent: true,
             root: None,
         }
     }
@@ -84,13 +88,32 @@ impl XML {
     /// Sets a custom XML header.
     ///
     /// Be careful, no syntax and semantic verifications are made on this header.
+    ///
+    /// # Arguments
+    ///
+    /// `custom_header` - A String containing the new header value to set for the XML.
     pub fn set_custom_header(&mut self, custom_header: String) {
         self.custom_header = Some(custom_header);
     }
 
     /// Sets the XML document root element.
+    ///
+    /// # Arguments
+    ///
+    /// `element` - An XMLElement qualified as root for the XML document.
     pub fn set_root_element(&mut self, element: XMLElement) {
         self.root = Some(element);
+    }
+
+    /// Sets the XML indentation.
+    ///
+    /// Setting a `false` value will lower final XML document size.
+    ///
+    /// # Arguments
+    ///
+    /// `should_indent` - A boolean value indicating whether we want indentation for the document.
+    pub fn set_document_indentation(&mut self, should_indent: bool) {
+        self.should_indent = should_indent;
     }
 
     /// Builds an XML document into the specified writer implementing Write trait.
@@ -113,7 +136,7 @@ impl XML {
 
         // And then XML elements if present...
         if let Some(elem) = &self.root {
-            elem.render(&mut writer, self.should_sort_attributes)?;
+            elem.render(&mut writer, self.should_sort_attributes, self.should_indent)?;
         }
 
         Ok(())
