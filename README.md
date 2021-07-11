@@ -2,6 +2,7 @@
 
 [![Documentation](https://docs.rs/xml-builder/badge.svg)](https://docs.rs/xml-builder)
 [![Latest version](https://img.shields.io/crates/v/xml-builder.svg)](https://crates.io/crates/xml-builder)
+[![dependency status](https://deps.rs/repo/github/cocool97/xml-builder/status.svg)](https://deps.rs/repo/github/cocool97/xml-builder)
 [![codecov](https://codecov.io/gh/cocool97/xml-builder/branch/master/graph/badge.svg?token=2PMZ6D9E5M)](https://codecov.io/gh/cocool97/xml-builder)
 
 This crate allows you to easily create an XML file in a short time by building an object tree. 
