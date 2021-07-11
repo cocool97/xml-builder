@@ -32,6 +32,11 @@ impl XMLElement {
         }
     }
 
+    /// Sets the header attribute sort.
+    ///
+    /// # Arguments
+    ///
+    /// `should_sort` - A boolean value indicating whether we want attributes to be sorted.
     pub fn set_attribute_sorting(&mut self, should_sort: bool) {
         self.should_sort_attributes = Some(should_sort);
     }
@@ -120,6 +125,8 @@ impl XMLElement {
     /// # Arguments
     ///
     /// * `writer` - An object to render the referenced XMLElement to
+    /// * `should_sort` - A boolean value indicating whether we should attributes sort or not
+    /// * `should_indent` - A boolean value indicating whether we should indent this XML element
     pub fn render<W: Write>(
         &self,
         writer: &mut W,
@@ -135,6 +142,8 @@ impl XMLElement {
     ///
     /// * `writer` - An object to render the referenced XMLElement to
     /// * `level` - An usize representing the depth of the XML tree. Used to indent the object.
+    /// * `should_sort` - A boolean value indicating whether we should attributes sort or not
+    /// * `should_indent` - A boolean value indicating whether we should indent this XML element
     fn render_level<W: Write>(
         &self,
         writer: &mut W,

@@ -49,7 +49,7 @@ impl XML {
 
     /// Does not render XML header for this document.
     ///
-    /// Can be used in case of a custom XML implementation such as XMLTV.
+    /// Can be used in case of custom XML implementations such as XMLTV.
     ///
     /// # Arguments
     ///
@@ -119,6 +119,10 @@ impl XML {
     /// Builds an XML document into the specified writer implementing Write trait.
     ///
     /// Consumes the XML object.
+    ///
+    /// # Arguments
+    ///
+    /// * `writer` - An object to render the referenced XML to
     pub fn build<W: Write>(self, mut writer: W) -> Result<()> {
         // Rendering first XML header line if asked...
         if self.should_render_header {
