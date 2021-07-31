@@ -32,6 +32,11 @@ impl XMLElement {
         }
     }
 
+    /// Sets whether attributes should be sorted or not.
+    ///
+    /// # Arguments
+    ///
+    /// * `should_sort` - A boolean indicating whether attributes should be sorted or not.
     pub fn set_attribute_sorting(&mut self, should_sort: bool) {
         self.should_sort_attributes = Some(should_sort);
     }

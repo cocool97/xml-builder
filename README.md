@@ -37,12 +37,12 @@ xml-builder = "*"
 ## Examples
 
 ```rust
-use xml_builder::{XML, XMLElement};
+use xml_builder::{XML, XMLElement, XMLVersion};
 
 fn main() {
     let mut xml = XML::new();
     xml.set_attribute_sorting(true);
-    xml.set_version("1.1".into());
+    xml.set_version(XMLVersion::XML1_1);
     xml.set_encoding("UTF-8".into());
 
     let mut house = XMLElement::new("house");

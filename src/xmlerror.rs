@@ -1,10 +1,13 @@
 use std::fmt::Debug;
 
+/// Custom `Result` type thrown by this crate.
 pub type Result<T> = std::result::Result<T, XMLError>;
 
 /// Error type thrown by this crate
 pub enum XMLError {
+    /// Thrown when the given element cannot be inserted into the XML object tree.
     WrongInsert(String),
+    /// Thrown when the given `Writer` cannot be written to.
     WriteError(String),
 }
 
