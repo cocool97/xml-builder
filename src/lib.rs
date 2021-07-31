@@ -1,4 +1,7 @@
 #![crate_type = "lib"]
+#![warn(missing_docs)]
+#![forbid(unsafe_code)]
+
 pub use xml::XML;
 pub use xmlelement::XMLElement;
 pub use xmlerror::{Result, XMLError};

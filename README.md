@@ -5,24 +5,32 @@
 [![dependency status](https://deps.rs/repo/github/cocool97/xml-builder/status.svg)](https://deps.rs/repo/github/cocool97/xml-builder)
 [![codecov](https://codecov.io/gh/cocool97/xml-builder/branch/master/graph/badge.svg?token=2PMZ6D9E5M)](https://codecov.io/gh/cocool97/xml-builder)
 
-This crate allows you to easily create an XML file in a short time by building an object tree. 
+This crate allows you to easily create an XML file in a short time by building a highly-configurable object tree. 
 
-Its main advantages are: 
+## Main advantages
 
-* Fast XML documents creation
-* Low size, good for embedeed systems
-* 0 dependencies
-* Low compilation time
-* High configurability of objects
+This crate offers many advantages over other XML-building crates :
 
-Feel free to contribute to the project and adding your PR's !
+* Fast and easy documents creation
+* Low size, suits fine for embedeed systems
+* Does not depend on other crates
+* High configurable
+* No unsafe code, it integrates the `#![forbid(unsafe_code)]` lint directive
+
+## Main features
+
+Using this crate can bring you many useful features :
+
+* Element attributes sorting
+* Custom XML versions
+* Custom XML encodings
 
 ## Usage
 
 To use this crate you just need to add this to your `Cargo.toml` file:
 
 ```toml
-[dependancies]
+[dependencies]
 xml-builder = "*"
 ```
 
@@ -56,7 +64,7 @@ fn main() {
 }
 ```
 
-This XML content will be displayed:
+This following XML content will then be displayed:
 
 ```xml
 <?xml encoding="UTF-8" version="1.1"?>
