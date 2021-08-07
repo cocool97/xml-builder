@@ -23,7 +23,7 @@ fn test_xml_version() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>\n";
+    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -37,7 +37,7 @@ fn test_xml_encoding() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-16\" version=\"1.0\"?>\n";
+    let expected = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -60,7 +60,7 @@ fn test_indent() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.0\"?>
+    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <root>
 <indentation />
 <indentation />
@@ -78,7 +78,7 @@ fn test_xml_version_1_0() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.0\"?>\n";
+    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -92,7 +92,7 @@ fn test_xml_version_1_1() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>\n";
+    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -136,7 +136,7 @@ fn test_complex_xml() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>
+    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <house rooms=\"2\">
 \t<room number=\"1\">This is room number 1</room>
 \t<room number=\"2\">This is room number 2</room>
@@ -171,7 +171,7 @@ fn test_complex_sorted_root_xml() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>
+    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <house rooms=\"2\">
 \t<room number=\"1\" size=\"27\">This is room number 1</room>
 \t<room number=\"2\" size=\"54\">This is room number 2</room>
@@ -187,6 +187,7 @@ fn test_complex_sorted_element_xml() {
     let mut xml = XML::new();
     xml.set_xml_version(XMLVersion::XML1_1);
     xml.set_xml_encoding("UTF-8".into());
+    xml.standalone();
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -210,7 +211,7 @@ fn test_complex_sorted_element_xml() {
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
 
-    let expected = "<?xml encoding=\"UTF-8\" version=\"1.1\"?>
+    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"true\"?>
 <house rooms=\"2\">
 \t<room size=\"27\" city=\"Paris\" number=\"1\">This is room number 1</room>
 \t<room city=\"LA\" number=\"2\" size=\"54\">This is room number 2</room>

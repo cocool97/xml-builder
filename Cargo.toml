@@ -1,8 +1,8 @@
 [package]
 name = "xml-builder"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["LIAUD Corentin <corentin.liaud@orange.fr>"]
-description = "Easy to use XML builder and writer"
+description = "Easy and highly-configurable XML builder/writer"
 keywords = ["xml"]
 categories = ["data-structures"]
 readme = "README.md"

@@ -15,6 +15,13 @@ pub struct XML {
     /// Defaults to `UTF-8`.
     encoding: String,
 
+    /// XML standalone attribute.
+    ///
+    /// A `None` value indicates no displaying.
+    ///
+    /// Defaults to `None`
+    standalone: Option<bool>,
+
     /// Whether the XML attributes should be sorted or not.
     ///
     /// Defaults to `false`.
@@ -34,6 +41,7 @@ impl Default for XML {
         XML {
             version: XMLVersion::XML1_0,
             encoding: "UTF-8".into(),
+            standalone: None,
             sort_attributes: false,
             indent: true,
             root: None,
@@ -63,6 +71,16 @@ impl XML {
     /// `encoding` - A String representing the encoding to use for the document.
     pub fn set_xml_encoding(&mut self, encoding: String) {
         self.encoding = encoding;
+    }
+
+    /// Sets to `true` the standalone attribute for this XML document.
+    pub fn standalone(&mut self) {
+        self.standalone = Some(true);
+    }
+
+    /// Sets to `false` the standalone attribute for this XML document.
+    pub fn not_standalone(&mut self) {
+        self.standalone = Some(false);
     }
 
     /// Enables attributes sorting.
@@ -98,11 +116,18 @@ impl XML {
     ///
     /// Consumes the XML object.
     pub fn build<W: Write>(self, mut writer: W) -> Result<()> {
+        let standalone_attribute = if let Some(standalone) = self.standalone {
+            format!(r#" standalone="{}""#, standalone.to_string())
+        } else {
+            String::default()
+        };
+
         writeln!(
             writer,
-            r#"<?xml encoding="{}" version="{}"?>"#,
+            r#"<?xml version="{}" encoding="{}"{}?>"#,
+            self.version.to_string(),
             self.encoding,
-            self.version.to_string()
+            standalone_attribute
         )?;
 
         // And then XML elements if present...
