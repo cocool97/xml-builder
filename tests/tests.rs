@@ -18,7 +18,7 @@ fn test_xml_file_write() {
 #[test]
 fn test_xml_version() {
     let mut xml = XML::new();
-    xml.set_version(XMLVersion::XML1_1);
+    xml.set_xml_version(XMLVersion::XML1_1);
 
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
@@ -32,7 +32,7 @@ fn test_xml_version() {
 #[test]
 fn test_xml_encoding() {
     let mut xml = XML::new();
-    xml.set_encoding("UTF-16".into());
+    xml.set_xml_encoding("UTF-16".into());
 
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
@@ -44,25 +44,9 @@ fn test_xml_encoding() {
 }
 
 #[test]
-fn test_custom_header() {
-    let mut xml = XML::new();
-    let header = "tv generator-info-name=\"my listings generator\"".into(); // XMLTV header example
-
-    xml.set_custom_header(header);
-
-    let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
-
-    let expected = "<tv generator-info-name=\"my listings generator\">\n";
-    let res = std::str::from_utf8(&writer).unwrap();
-
-    assert_eq!(res, expected, "Both values does not match...");
-}
-
-#[test]
 fn test_indent() {
     let mut xml = XML::new();
-    xml.set_document_indentation(false);
+    xml.disable_indentation();
 
     let mut root = XMLElement::new("root");
     let first_element_inside = XMLElement::new("indentation");
@@ -89,7 +73,7 @@ fn test_indent() {
 #[test]
 fn test_xml_version_1_0() {
     let mut xml = XML::new();
-    xml.set_version(XMLVersion::XML1_0);
+    xml.set_xml_version(XMLVersion::XML1_0);
 
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
@@ -103,7 +87,7 @@ fn test_xml_version_1_0() {
 #[test]
 fn test_xml_version_1_1() {
     let mut xml = XML::new();
-    xml.set_version(XMLVersion::XML1_1);
+    xml.set_xml_version(XMLVersion::XML1_1);
 
     let mut writer: Vec<u8> = Vec::new();
     xml.build(&mut writer).unwrap();
@@ -133,8 +117,8 @@ fn test_panic_child_for_text_element() {
 #[test]
 fn test_complex_xml() {
     let mut xml = XML::new();
-    xml.set_version(XMLVersion::XML1_1);
-    xml.set_encoding("UTF-8".into());
+    xml.set_xml_version(XMLVersion::XML1_1);
+    xml.set_xml_encoding("UTF-8".into());
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -166,9 +150,9 @@ fn test_complex_xml() {
 #[test]
 fn test_complex_sorted_root_xml() {
     let mut xml = XML::new();
-    xml.set_attribute_sorting(true);
-    xml.set_version(XMLVersion::XML1_1);
-    xml.set_encoding("UTF-8".into());
+    xml.enable_attributes_sorting();
+    xml.set_xml_version(XMLVersion::XML1_1);
+    xml.set_xml_encoding("UTF-8".into());
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -201,8 +185,8 @@ fn test_complex_sorted_root_xml() {
 #[test]
 fn test_complex_sorted_element_xml() {
     let mut xml = XML::new();
-    xml.set_version(XMLVersion::XML1_1);
-    xml.set_encoding("UTF-8".into());
+    xml.set_xml_version(XMLVersion::XML1_1);
+    xml.set_xml_encoding("UTF-8".into());
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -215,7 +199,7 @@ fn test_complex_sorted_element_xml() {
         room.add_text(format!("This is room number {}", i)).unwrap();
 
         if i % 2 == 0 {
-            room.set_attribute_sorting(true);
+            room.enable_attributes_sorting();
         }
 
         house.add_child(room).unwrap();

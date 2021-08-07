@@ -11,14 +11,16 @@ pub struct XMLElement {
     attributes: Vec<(String, String)>,
 
     /// A boolean representing whether we want attributes to be sorted.
-    should_sort_attributes: Option<bool>,
+    ///
+    /// If not set, defaults to the root's `XMLELement`.
+    sort_attributes: Option<bool>,
 
     /// The content of this XML element.
     content: XMLElementContent,
 }
 
 impl XMLElement {
-    /// Instantiates a XMLElement object.
+    /// Instantiates a new XMLElement object.
     ///
     /// # Arguments
     ///
@@ -27,18 +29,19 @@ impl XMLElement {
         XMLElement {
             name: name.into(),
             attributes: Vec::new(),
-            should_sort_attributes: None,
+            sort_attributes: None,
             content: XMLElementContent::Empty,
         }
     }
 
-    /// Sets whether attributes should be sorted or not.
-    ///
-    /// # Arguments
-    ///
-    /// * `should_sort` - A boolean indicating whether attributes should be sorted or not.
-    pub fn set_attribute_sorting(&mut self, should_sort: bool) {
-        self.should_sort_attributes = Some(should_sort);
+    /// Enables attributes sorting.
+    pub fn enable_attributes_sorting(&mut self) {
+        self.sort_attributes = Some(true);
+    }
+
+    /// Disables attributes sorting.
+    pub fn disable_attributes_sorting(&mut self) {
+        self.sort_attributes = Some(false);
     }
 
     /// Adds the given name/value attribute to the XMLElement.
@@ -52,7 +55,8 @@ impl XMLElement {
     }
 
     /// Adds a new XMLElement child object to the references XMLElement.
-    /// Raises a XMLError if trying to add a child to a text XMLElement.
+    ///
+    /// Raises `XMLError` if trying to add a child to a text XMLElement.
     ///
     /// # Arguments
     ///
@@ -76,7 +80,8 @@ impl XMLElement {
     }
 
     /// Adds text content to a XMLElement object.
-    /// Raises a XMLError if trying to add text to a non-empty object.
+    ///
+    /// Raises `XMLError` if trying to add text to a non-empty object.
     ///
     /// # Arguments
     ///
@@ -99,18 +104,18 @@ impl XMLElement {
     /// Internal method rendering an attribute list to a String.
     fn attributes_as_string(&self, should_sort: bool) -> String {
         if self.attributes.is_empty() {
-            "".to_owned()
+            String::default()
         } else {
             let mut attributes = self.attributes.clone();
 
             // Giving priority to the element boolean, and taking the global xml if not set
-            let should_sort_attributes = self.should_sort_attributes.unwrap_or(should_sort);
+            let should_sort_attributes = self.sort_attributes.unwrap_or(should_sort);
 
             if should_sort_attributes {
                 attributes.sort();
             }
 
-            let mut result = "".into();
+            let mut result = String::default();
 
             for (k, v) in &attributes {
                 result = format!("{} {}", result, format!(r#"{}="{}""#, k, v));
@@ -120,6 +125,7 @@ impl XMLElement {
     }
 
     /// Renders an XMLElement object into the specified writer implementing Write trait.
+    ///
     /// Does not take ownership of the object.
     ///
     /// # Arguments
