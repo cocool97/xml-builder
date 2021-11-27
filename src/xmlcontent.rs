@@ -1,7 +1,7 @@
 use crate::XMLElement;
 
 /// An enum value representing the types of XML contents
-pub enum XMLElementContent {
+pub(crate) enum XMLElementContent {
     /// No XML content.
     Empty,
 

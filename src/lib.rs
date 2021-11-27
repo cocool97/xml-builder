@@ -1,5 +1,7 @@
 #![crate_type = "lib"]
 #![forbid(unsafe_code)]
+#![forbid(missing_docs)]
+#![doc = include_str!("../README.md")]
 
 pub use traits::ToXMLElement;
 pub use xml::XML;

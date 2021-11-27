@@ -101,7 +101,11 @@ impl XMLElement {
         Ok(())
     }
 
-    /// Internal method rendering an attribute list to a String.
+    /// Internal method rendering attribute list to a String.
+    ///
+    /// # Arguments
+    ///
+    /// * `should_sort` - A boolean indicating whether we should sort these atttibutes.
     fn attributes_as_string(&self, should_sort: bool) -> String {
         if self.attributes.is_empty() {
             String::default()
