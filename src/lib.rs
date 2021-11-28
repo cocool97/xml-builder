@@ -3,6 +3,7 @@
 #![forbid(missing_docs)]
 #![doc = include_str!("../README.md")]
 
+pub use builder::XMLBuilder;
 pub use traits::ToXMLElement;
 pub use xml::XML;
 pub use xmlelement::XMLElement;
@@ -12,6 +13,7 @@ pub use xmlversion::XMLVersion;
 use utils::escape_str;
 use xmlcontent::XMLElementContent;
 
+mod builder;
 mod traits;
 mod utils;
 mod xml;

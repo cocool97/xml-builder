@@ -36,71 +36,22 @@ pub struct XML {
     root: Option<XMLElement>,
 }
 
-impl Default for XML {
-    fn default() -> Self {
-        XML {
-            version: XMLVersion::XML1_0,
-            encoding: "UTF-8".into(),
-            standalone: None,
-            sort_attributes: false,
-            indent: true,
+impl XML {
+    pub(crate) fn new(
+        version: XMLVersion,
+        encoding: String,
+        standalone: Option<bool>,
+        indent: bool,
+        sort_attributes: bool,
+    ) -> Self {
+        Self {
+            version,
+            encoding,
+            standalone,
+            indent,
+            sort_attributes,
             root: None,
         }
-    }
-}
-
-impl XML {
-    /// Instantiates a XML object.
-    pub fn new() -> Self {
-        XML::default()
-    }
-
-    /// Sets the XML version attribute field.
-    ///
-    /// # Arguments
-    ///
-    /// `version` - An enum value representing the new version to use for the XML.
-    pub fn set_xml_version(&mut self, version: XMLVersion) {
-        self.version = version;
-    }
-
-    /// Sets the XML encoding attribute field.
-    ///
-    /// # Arguments
-    ///
-    /// `encoding` - A String representing the encoding to use for the document.
-    pub fn set_xml_encoding(&mut self, encoding: String) {
-        self.encoding = encoding;
-    }
-
-    /// Sets to `true` the standalone attribute for this XML document.
-    pub fn standalone(&mut self) {
-        self.standalone = Some(true);
-    }
-
-    /// Sets to `false` the standalone attribute for this XML document.
-    pub fn not_standalone(&mut self) {
-        self.standalone = Some(false);
-    }
-
-    /// Enables attributes sorting.
-    pub fn enable_attributes_sorting(&mut self) {
-        self.sort_attributes = true;
-    }
-
-    /// Disables attributes sorting.
-    pub fn disable_attributes_sorting(&mut self) {
-        self.sort_attributes = false;
-    }
-
-    /// Enables XML indentation.
-    pub fn enable_indentation(&mut self) {
-        self.indent = true;
-    }
-
-    /// Disables XML indentation.
-    pub fn disable_indentation(&mut self) {
-        self.indent = false;
     }
 
     /// Sets the XML document root element.
@@ -112,10 +63,10 @@ impl XML {
         self.root = Some(element);
     }
 
-    /// Builds an XML document into the specified `Writer`.
+    /// Generates an XML document into the specified `Writer`.
     ///
     /// Consumes the XML object.
-    pub fn build<W: Write>(self, mut writer: W) -> Result<()> {
+    pub fn generate<W: Write>(self, mut writer: W) -> Result<()> {
         let standalone_attribute = if let Some(standalone) = self.standalone {
             format!(r#" standalone="{}""#, standalone.to_string())
         } else {

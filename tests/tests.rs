@@ -1,27 +1,26 @@
-use xml_builder::{XMLElement, XMLVersion, XML};
+use xml_builder::{XMLBuilder, XMLElement, XMLVersion};
 
 #[test]
 fn test_xml_default_creation() {
-    let xml = XML::new();
+    let xml = XMLBuilder::new().build();
     let writer = std::io::sink();
-    xml.build(writer).unwrap();
+    xml.generate(writer).unwrap();
 }
 
 #[test]
 fn test_xml_file_write() {
-    let xml = XML::new();
+    let xml = XMLBuilder::new().build();
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 }
 
 #[test]
 fn test_xml_version() {
-    let mut xml = XML::new();
-    xml.set_xml_version(XMLVersion::XML1_1);
+    let xml = XMLBuilder::new().version(XMLVersion::XML1_1).build();
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
@@ -31,11 +30,10 @@ fn test_xml_version() {
 
 #[test]
 fn test_xml_encoding() {
-    let mut xml = XML::new();
-    xml.set_xml_encoding("UTF-16".into());
+    let xml = XMLBuilder::new().encoding("UTF-16".into()).build();
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
@@ -45,8 +43,7 @@ fn test_xml_encoding() {
 
 #[test]
 fn test_indent() {
-    let mut xml = XML::new();
-    xml.disable_indentation();
+    let mut xml = XMLBuilder::new().indent(false).build();
 
     let mut root = XMLElement::new("root");
     let first_element_inside = XMLElement::new("indentation");
@@ -58,7 +55,7 @@ fn test_indent() {
     xml.set_root_element(root);
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <root>
@@ -72,11 +69,10 @@ fn test_indent() {
 
 #[test]
 fn test_xml_version_1_0() {
-    let mut xml = XML::new();
-    xml.set_xml_version(XMLVersion::XML1_0);
+    let xml = XMLBuilder::new().version(XMLVersion::XML1_0).build();
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
@@ -86,11 +82,10 @@ fn test_xml_version_1_0() {
 
 #[test]
 fn test_xml_version_1_1() {
-    let mut xml = XML::new();
-    xml.set_xml_version(XMLVersion::XML1_1);
+    let xml = XMLBuilder::new().version(XMLVersion::XML1_1).build();
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
@@ -101,7 +96,7 @@ fn test_xml_version_1_1() {
 #[test]
 #[should_panic]
 fn test_panic_child_for_text_element() {
-    let xml = XML::new();
+    let xml = XMLBuilder::new().build();
 
     let mut xml_child = XMLElement::new("panic");
     xml_child
@@ -111,14 +106,15 @@ fn test_panic_child_for_text_element() {
     let xml_child2 = XMLElement::new("sorry");
     xml_child.add_child(xml_child2).unwrap();
 
-    xml.build(std::io::stdout()).unwrap();
+    xml.generate(std::io::stdout()).unwrap();
 }
 
 #[test]
 fn test_complex_xml() {
-    let mut xml = XML::new();
-    xml.set_xml_version(XMLVersion::XML1_1);
-    xml.set_xml_encoding("UTF-8".into());
+    let mut xml = XMLBuilder::new()
+        .version(XMLVersion::XML1_1)
+        .encoding("UTF-8".into())
+        .build();
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -134,7 +130,7 @@ fn test_complex_xml() {
     xml.set_root_element(house);
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <house rooms=\"2\">
@@ -149,10 +145,11 @@ fn test_complex_xml() {
 // Here the `sort` attribute is set to the root, so everything should be sorted
 #[test]
 fn test_complex_sorted_root_xml() {
-    let mut xml = XML::new();
-    xml.enable_attributes_sorting();
-    xml.set_xml_version(XMLVersion::XML1_1);
-    xml.set_xml_encoding("UTF-8".into());
+    let mut xml = XMLBuilder::new()
+        .sort_attributes(true)
+        .version(XMLVersion::XML1_1)
+        .encoding("UTF-8".into())
+        .build();
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -169,7 +166,7 @@ fn test_complex_sorted_root_xml() {
     xml.set_root_element(house);
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <house rooms=\"2\">
@@ -184,10 +181,11 @@ fn test_complex_sorted_root_xml() {
 // Here the `sort` attribute is set to the an element only, so everything should not be sorted
 #[test]
 fn test_complex_sorted_element_xml() {
-    let mut xml = XML::new();
-    xml.set_xml_version(XMLVersion::XML1_1);
-    xml.set_xml_encoding("UTF-8".into());
-    xml.standalone();
+    let mut xml = XMLBuilder::new()
+        .version(XMLVersion::XML1_1)
+        .encoding("UTF-8".into())
+        .standalone(Some(true))
+        .build();
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
@@ -209,7 +207,7 @@ fn test_complex_sorted_element_xml() {
     xml.set_root_element(house);
 
     let mut writer: Vec<u8> = Vec::new();
-    xml.build(&mut writer).unwrap();
+    xml.generate(&mut writer).unwrap();
 
     let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"true\"?>
 <house rooms=\"2\">

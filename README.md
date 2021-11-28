@@ -11,10 +11,10 @@ This crate allows you to easily create an XML file in a short time by building a
 
 This crate offers many advantages over other XML-building crates :
 
-* Fast and easy documents creation
+* Fast and easy XML documents creation
 * Low size, suits fine for embedeed systems
 * Does not depend on other crates
-* High configurable
+* Highly configurable
 * No unsafe code, it integrates the `#![forbid(unsafe_code)]` lint directive
 
 ## Main features
@@ -22,6 +22,7 @@ This crate offers many advantages over other XML-building crates :
 Using this crate can bring you many useful features :
 
 * Element attributes sorting
+* XML indentation, or not
 * Custom XML versions
 * Custom XML encodings
 
@@ -37,20 +38,19 @@ xml-builder = "*"
 ## Examples
 
 ```rust
-use xml_builder::{XML, XMLElement, XMLVersion};
+use xml_builder::{XMLBuilder, XMLElement, XMLVersion};
 
 fn main() {
-    let mut xml = XML::new();
-    xml.enable_attributes_sorting();
-    xml.set_xml_version(XMLVersion::XML1_1);
-    xml.set_xml_encoding("UTF-8".into());
+    let mut xml = XMLBuilder::new()
+        .version(XMLVersion::XML1_1)
+        .encoding("UTF-8".into())
+        .build();
 
     let mut house = XMLElement::new("house");
     house.add_attribute("rooms", "2");
 
     for i in 1..=2 {
         let mut room = XMLElement::new("room");
-        room.add_attribute("price", &(42*i).to_string());
         room.add_attribute("number", &i.to_string());
         room.add_text(format!("This is room number {}", i)).unwrap();
 
@@ -59,8 +59,8 @@ fn main() {
 
     xml.set_root_element(house);
 
-    let mut stdio = std::io::stdout();
-    xml.build(&mut stdio).unwrap();
+    let mut writer: Vec<u8> = Vec::new();
+    xml.generate(&mut writer).unwrap();
 }
 ```
 
