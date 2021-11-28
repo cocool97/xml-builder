@@ -70,7 +70,7 @@ impl XMLElement {
                 e.push(element);
             }
             XMLElementContent::Text(_) => {
-                return Err(XMLError::WrongInsert(
+                return Err(XMLError::InsertError(
                     "Cannot insert child inside an element with text".into(),
                 ))
             }
@@ -92,7 +92,7 @@ impl XMLElement {
                 self.content = XMLElementContent::Text(text);
             }
             _ => {
-                return Err(XMLError::WrongInsert(
+                return Err(XMLError::InsertError(
                     "Cannot insert text in a non-empty element".into(),
                 ))
             }
