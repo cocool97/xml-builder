@@ -67,10 +67,9 @@ impl XML {
     ///
     /// Consumes the XML object.
     pub fn generate<W: Write>(self, mut writer: W) -> Result<()> {
-        let standalone_attribute = if let Some(standalone) = self.standalone {
-            format!(r#" standalone="{}""#, standalone.to_string())
-        } else {
-            String::default()
+        let standalone_attribute = match self.standalone {
+            Some(_) => r#" standalone="yes""#.to_string(),
+            None => String::default(),
         };
 
         writeln!(

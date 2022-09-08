@@ -209,7 +209,7 @@ fn test_complex_sorted_element_xml() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"true\"?>
+    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>
 <house rooms=\"2\">
 \t<room size=\"27\" city=\"Paris\" number=\"1\">This is room number 1</room>
 \t<room city=\"LA\" number=\"2\" size=\"54\">This is room number 2</room>
