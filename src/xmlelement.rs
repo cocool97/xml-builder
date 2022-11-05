@@ -119,10 +119,10 @@ impl XMLElement {
                 attributes.sort();
             }
 
-            let mut result = String::default();
+            let mut result = String::new();
 
             for (k, v) in &attributes {
-                result = format!("{} {}", result, format!(r#"{}="{}""#, k, v));
+                result = format!(r#"{} {}="{}""#, result, k, v);
             }
             result
         }
