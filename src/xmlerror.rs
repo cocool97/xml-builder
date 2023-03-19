@@ -1,4 +1,5 @@
-use std::fmt::Debug;
+use std::error::Error;
+use std::fmt::{Debug, Display};
 
 /// Custom `Result` type thrown by this crate.
 pub type Result<T> = std::result::Result<T, XMLError>;
@@ -25,3 +26,11 @@ impl Debug for XMLError {
         }
     }
 }
+
+impl Display for XMLError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+impl Error for XMLError {}
