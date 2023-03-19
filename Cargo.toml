@@ -1,6 +1,6 @@
 [package]
 name = "xml-builder"
-version = "0.5.1"
+version = "0.5.2"
 authors = ["LIAUD Corentin <corentin.liaud@orange.fr>"]
 description = "Easy and highly-configurable XML builder/writer"
 keywords = ["xml"]
