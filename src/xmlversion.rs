@@ -7,12 +7,11 @@ pub enum XMLVersion {
     XML1_1,
 }
 
-impl ToString for XMLVersion {
-    /// Converts the XMLVersion enum value into a string usable in the XML document
-    fn to_string(&self) -> String {
+impl std::fmt::Display for XMLVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            XMLVersion::XML1_0 => "1.0".into(),
-            XMLVersion::XML1_1 => "1.1".into(),
+            XMLVersion::XML1_0 => write!(f, "1.0"),
+            XMLVersion::XML1_1 => write!(f, "1.1"),
         }
     }
 }

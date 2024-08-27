@@ -75,9 +75,7 @@ impl XML {
         writeln!(
             writer,
             r#"<?xml version="{}" encoding="{}"{}?>"#,
-            self.version.to_string(),
-            self.encoding,
-            standalone_attribute
+            self.version, self.encoding, standalone_attribute
         )?;
 
         // And then XML elements if present...

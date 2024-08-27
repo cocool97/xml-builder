@@ -5,7 +5,7 @@
 [![dependency status](https://deps.rs/repo/github/cocool97/xml-builder/status.svg)](https://deps.rs/repo/github/cocool97/xml-builder)
 [![codecov](https://codecov.io/gh/cocool97/xml-builder/branch/master/graph/badge.svg?token=2PMZ6D9E5M)](https://codecov.io/gh/cocool97/xml-builder)
 
-This crate allows you to easily create an XML file in a short time by building a highly-configurable object tree. 
+This crate allows you to easily create an XML file in a short time by building a highly-configurable object tree.
 
 ## Main advantages
 
@@ -40,28 +40,25 @@ xml-builder = "*"
 ```rust
 use xml_builder::{XMLBuilder, XMLElement, XMLVersion};
 
-fn main() {
-    let mut xml = XMLBuilder::new()
-        .version(XMLVersion::XML1_1)
-        .encoding("UTF-8".into())
-        .build();
+let mut xml = XMLBuilder::new()
+    .version(XMLVersion::XML1_1)
+    .encoding("UTF-8".into())
+    .build();
 
-    let mut house = XMLElement::new("house");
-    house.add_attribute("rooms", "2");
+let mut house = XMLElement::new("house");
+house.add_attribute("rooms", "2");
 
-    for i in 1..=2 {
-        let mut room = XMLElement::new("room");
-        room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {}", i)).unwrap();
-
-        house.add_child(room).unwrap();
-    }
-
-    xml.set_root_element(house);
-
-    let mut writer: Vec<u8> = Vec::new();
-    xml.generate(&mut writer).unwrap();
+for i in 1..=2 {
+    let mut room = XMLElement::new("room");
+    room.add_attribute("number", &i.to_string());
+    room.add_text(format!("This is room number {}", i)).unwrap();
+    house.add_child(room).unwrap();
 }
+
+xml.set_root_element(house);
+
+let mut writer: Vec<u8> = Vec::new();
+xml.generate(&mut writer).unwrap();
 ```
 
 This following XML content will then be displayed:
