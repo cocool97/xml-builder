@@ -32,6 +32,11 @@ pub struct XML {
     /// Defaults to `true`.
     indent: bool,
 
+    /// Whether we want to break lines or not.
+    ///
+    /// Defaults to `true`.
+    break_lines: bool,
+
     /// The root XML element.
     root: Option<XMLElement>,
 }
@@ -43,6 +48,7 @@ impl XML {
         standalone: Option<bool>,
         indent: bool,
         sort_attributes: bool,
+        break_lines: bool,
     ) -> Self {
         Self {
             version,
@@ -50,6 +56,7 @@ impl XML {
             standalone,
             indent,
             sort_attributes,
+            break_lines,
             root: None,
         }
     }
@@ -71,16 +78,25 @@ impl XML {
             Some(_) => r#" standalone="yes""#.to_string(),
             None => String::default(),
         };
+        let suffix = match self.break_lines {
+            true => "\n",
+            false => "",
+        };
 
-        writeln!(
+        write!(
             writer,
-            r#"<?xml version="{}" encoding="{}"{}?>"#,
-            self.version, self.encoding, standalone_attribute
+            r#"<?xml version="{}" encoding="{}"{}?>{}"#,
+            self.version, self.encoding, standalone_attribute, suffix
         )?;
 
         // And then XML elements if present...
         if let Some(elem) = &self.root {
-            elem.render(&mut writer, self.sort_attributes, self.indent)?;
+            elem.render(
+                &mut writer,
+                self.sort_attributes,
+                self.indent,
+                self.break_lines,
+            )?;
         }
 
         Ok(())

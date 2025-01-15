@@ -68,6 +68,25 @@ fn test_indent() {
 }
 
 #[test]
+fn test_line_breaks() {
+    let mut xml = XMLBuilder::new().break_lines(false).build();
+
+    let mut root = XMLElement::new("root");
+    let element = XMLElement::new("element");
+
+    root.add_child(element).unwrap();
+    xml.set_root_element(root);
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.generate(&mut writer).unwrap();
+
+    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>\t<element /></root>";
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...");
+}
+
+#[test]
 fn test_xml_version_1_0() {
     let xml = XMLBuilder::new().version(XMLVersion::XML1_0).build();
 

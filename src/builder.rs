@@ -28,6 +28,11 @@ pub struct XMLBuilder {
     ///
     /// Defaults to `false`.
     sort_attributes: bool,
+
+    /// Whether we want to break lines or not.
+    ///
+    /// Defaults to `true`.
+    break_lines: bool,
 }
 
 impl Default for XMLBuilder {
@@ -38,6 +43,7 @@ impl Default for XMLBuilder {
             standalone: None,
             indent: true,
             sort_attributes: false,
+            break_lines: true,
         }
     }
 }
@@ -91,6 +97,13 @@ impl XMLBuilder {
         self
     }
 
+    /// Sets whether to break lines.
+    pub fn break_lines(mut self, break_lines: bool) -> Self {
+        self.break_lines = break_lines;
+
+        self
+    }
+
     /// Builds a new XML structure by consuming self.
     pub fn build(self) -> XML {
         XML::new(
@@ -99,6 +112,7 @@ impl XMLBuilder {
             self.standalone,
             self.indent,
             self.sort_attributes,
+            self.break_lines,
         )
     }
 }
