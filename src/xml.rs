@@ -37,6 +37,11 @@ pub struct XML {
     /// Defaults to `true`.
     break_lines: bool,
 
+    /// Whether we want to expand empty tags or not.
+    ///
+    /// Defaults to `false`.
+    expand_empty_tags: bool,
+
     /// The root XML element.
     root: Option<XMLElement>,
 }
@@ -49,6 +54,7 @@ impl XML {
         indent: bool,
         sort_attributes: bool,
         break_lines: bool,
+        expand_empty_tags: bool,
     ) -> Self {
         Self {
             version,
@@ -57,6 +63,7 @@ impl XML {
             indent,
             sort_attributes,
             break_lines,
+            expand_empty_tags,
             root: None,
         }
     }
@@ -96,6 +103,7 @@ impl XML {
                 self.sort_attributes,
                 self.indent,
                 self.break_lines,
+                self.expand_empty_tags,
             )?;
         }
 

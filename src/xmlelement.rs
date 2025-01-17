@@ -141,8 +141,16 @@ impl XMLElement {
         should_sort: bool,
         should_indent: bool,
         should_break_lines: bool,
+        should_expand_empty_tags: bool,
     ) -> Result<()> {
-        self.render_level(writer, 0, should_sort, should_indent, should_break_lines)
+        self.render_level(
+            writer,
+            0,
+            should_sort,
+            should_indent,
+            should_break_lines,
+            should_expand_empty_tags,
+        )
     }
 
     /// Internal method rendering and indenting a XMLELement object
@@ -158,6 +166,7 @@ impl XMLElement {
         should_sort: bool,
         should_indent: bool,
         should_break_lines: bool,
+        should_expand_empty_tags: bool,
     ) -> Result<()> {
         let indent = match should_indent {
             true => "\t".repeat(level),
@@ -171,13 +180,22 @@ impl XMLElement {
         let attributes = self.attributes_as_string(should_sort);
 
         match &self.content {
-            XMLElementContent::Empty => {
-                write!(
-                    writer,
-                    "{}<{}{} />{}",
-                    indent, self.name, attributes, suffix
-                )?;
-            }
+            XMLElementContent::Empty => match should_expand_empty_tags {
+                true => {
+                    write!(
+                        writer,
+                        "{}<{}{}></{}>{}",
+                        indent, self.name, attributes, self.name, suffix
+                    )?;
+                }
+                false => {
+                    write!(
+                        writer,
+                        "{}<{}{} />{}",
+                        indent, self.name, attributes, suffix
+                    )?;
+                }
+            },
             XMLElementContent::Elements(elements) => {
                 write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
                 for elem in elements {
@@ -187,6 +205,7 @@ impl XMLElement {
                         should_sort,
                         should_indent,
                         should_break_lines,
+                        should_expand_empty_tags,
                     )?;
                 }
                 write!(writer, "{}</{}>{}", indent, self.name, suffix)?;

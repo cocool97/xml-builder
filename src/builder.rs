@@ -33,6 +33,11 @@ pub struct XMLBuilder {
     ///
     /// Defaults to `true`.
     break_lines: bool,
+
+    /// Whether we want to expand empty tags or not.
+    ///
+    /// Defaults to `false`.
+    expand_empty_tags: bool,
 }
 
 impl Default for XMLBuilder {
@@ -44,6 +49,7 @@ impl Default for XMLBuilder {
             indent: true,
             sort_attributes: false,
             break_lines: true,
+            expand_empty_tags: false,
         }
     }
 }
@@ -104,6 +110,13 @@ impl XMLBuilder {
         self
     }
 
+    /// Sets whether to expand empty tags.
+    pub fn expand_empty_tags(mut self, expand_empty_tags: bool) -> Self {
+        self.expand_empty_tags = expand_empty_tags;
+
+        self
+    }
+
     /// Builds a new XML structure by consuming self.
     pub fn build(self) -> XML {
         XML::new(
@@ -113,6 +126,7 @@ impl XMLBuilder {
             self.indent,
             self.sort_attributes,
             self.break_lines,
+            self.expand_empty_tags,
         )
     }
 }
