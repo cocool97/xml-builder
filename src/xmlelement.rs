@@ -140,8 +140,17 @@ impl XMLElement {
         writer: &mut W,
         should_sort: bool,
         should_indent: bool,
+        should_break_lines: bool,
+        should_expand_empty_tags: bool,
     ) -> Result<()> {
-        self.render_level(writer, 0, should_sort, should_indent)
+        self.render_level(
+            writer,
+            0,
+            should_sort,
+            should_indent,
+            should_break_lines,
+            should_expand_empty_tags,
+        )
     }
 
     /// Internal method rendering and indenting a XMLELement object
@@ -156,30 +165,56 @@ impl XMLElement {
         level: usize,
         should_sort: bool,
         should_indent: bool,
+        should_break_lines: bool,
+        should_expand_empty_tags: bool,
     ) -> Result<()> {
         let indent = match should_indent {
             true => "\t".repeat(level),
             false => "".into(),
         };
+        let suffix = match should_break_lines {
+            true => "\n",
+            false => "",
+        };
 
         let attributes = self.attributes_as_string(should_sort);
 
         match &self.content {
-            XMLElementContent::Empty => {
-                writeln!(writer, "{}<{}{} />", indent, self.name, attributes)?;
-            }
-            XMLElementContent::Elements(elements) => {
-                writeln!(writer, "{}<{}{}>", indent, self.name, attributes)?;
-                for elem in elements {
-                    elem.render_level(writer, level + 1, should_sort, should_indent)?;
+            XMLElementContent::Empty => match should_expand_empty_tags {
+                true => {
+                    write!(
+                        writer,
+                        "{}<{}{}></{}>{}",
+                        indent, self.name, attributes, self.name, suffix
+                    )?;
                 }
-                writeln!(writer, "{}</{}>", indent, self.name)?;
+                false => {
+                    write!(
+                        writer,
+                        "{}<{}{} />{}",
+                        indent, self.name, attributes, suffix
+                    )?;
+                }
+            },
+            XMLElementContent::Elements(elements) => {
+                write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
+                for elem in elements {
+                    elem.render_level(
+                        writer,
+                        level + 1,
+                        should_sort,
+                        should_indent,
+                        should_break_lines,
+                        should_expand_empty_tags,
+                    )?;
+                }
+                write!(writer, "{}</{}>{}", indent, self.name, suffix)?;
             }
             XMLElementContent::Text(text) => {
-                writeln!(
+                write!(
                     writer,
-                    "{}<{}{}>{}</{}>",
-                    indent, self.name, attributes, text, self.name
+                    "{}<{}{}>{}</{}>{}",
+                    indent, self.name, attributes, text, self.name, suffix
                 )?;
             }
         };
