@@ -22,7 +22,7 @@ fn test_xml_version() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>\n";
+    let expected = "<?xml version=\"1.1\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -57,7 +57,7 @@ fn test_indent() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    let expected = "<?xml version=\"1.0\"?>
 <root>
 <indentation />
 <indentation />
@@ -80,7 +80,7 @@ fn test_line_breaks() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>\t<element /></root>";
+    let expected = "<?xml version=\"1.0\"?><root>\t<element /></root>";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -101,7 +101,7 @@ fn test_expand_empty_tags() {
     xml.generate(&mut writer).unwrap();
 
     let expected =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n\t<element></element>\n</root>\n";
+        "<?xml version=\"1.0\"?>\n<root>\n\t<element></element>\n</root>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -114,7 +114,7 @@ fn test_xml_version_1_0() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    let expected = "<?xml version=\"1.0\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");
@@ -127,7 +127,7 @@ fn test_xml_version_1_1() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected = "<?xml version=\"1.1\" encoding=\"UTF-8\"?>\n";
+    let expected = "<?xml version=\"1.1\"?>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");

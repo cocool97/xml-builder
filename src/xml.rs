@@ -13,7 +13,7 @@ pub struct XML {
     /// The encoding to set for the document.
     ///
     /// Defaults to `UTF-8`.
-    encoding: String,
+    encoding: Option<String>,
 
     /// XML standalone attribute.
     ///
@@ -49,7 +49,7 @@ pub struct XML {
 impl XML {
     pub(crate) fn new(
         version: XMLVersion,
-        encoding: String,
+        encoding: Option<String>,
         standalone: Option<bool>,
         indent: bool,
         sort_attributes: bool,
@@ -81,20 +81,20 @@ impl XML {
     ///
     /// Consumes the XML object.
     pub fn generate<W: Write>(self, mut writer: W) -> Result<()> {
-        let standalone_attribute = match self.standalone {
-            Some(_) => r#" standalone="yes""#.to_string(),
-            None => String::default(),
-        };
-        let suffix = match self.break_lines {
-            true => "\n",
-            false => "",
+        write!(writer, r#"<?xml version="{}""#, self.version)?;
+
+        if let Some(encoding) = self.encoding {
+            write!(writer, r#" encoding="{}""#,  encoding)?;
+        }
+
+        if self.standalone.is_some() {
+            write!(writer, r#" standalone="yes""#)?;
         };
 
-        write!(
-            writer,
-            r#"<?xml version="{}" encoding="{}"{}?>{}"#,
-            self.version, self.encoding, standalone_attribute, suffix
-        )?;
+        write!(writer, "?>")?;
+        if self.break_lines {
+            write!(writer, "\n")?;
+        }
 
         // And then XML elements if present...
         if let Some(elem) = &self.root {
