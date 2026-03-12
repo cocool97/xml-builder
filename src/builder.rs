@@ -10,7 +10,7 @@ pub struct XMLBuilder {
     /// The encoding to set for the document.
     ///
     /// Defaults to `UTF-8`.
-    encoding: String,
+    encoding: Option<String>,
 
     /// XML standalone attribute.
     ///
@@ -44,7 +44,7 @@ impl Default for XMLBuilder {
     fn default() -> Self {
         Self {
             version: XMLVersion::XML1_0,
-            encoding: "UTF-8".into(),
+            encoding: None,
             standalone: None,
             indent: true,
             sort_attributes: false,
@@ -77,7 +77,7 @@ impl XMLBuilder {
     ///
     /// `encoding` - A String representing the encoding to use for the document.
     pub fn encoding(mut self, encoding: String) -> Self {
-        self.encoding = encoding;
+        self.encoding = Some(encoding);
 
         self
     }
