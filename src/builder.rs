@@ -55,7 +55,8 @@ impl Default for XMLBuilder {
 }
 
 impl XMLBuilder {
-    /// Builds a new XMLBuilder
+    /// Builds a new `XMLBuilder`.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -65,7 +66,8 @@ impl XMLBuilder {
     /// # Arguments
     ///
     /// `version` - An enum value representing the new version to use for the XML.
-    pub fn version(mut self, version: XMLVersion) -> Self {
+    #[must_use]
+    pub const fn version(mut self, version: XMLVersion) -> Self {
         self.version = version;
 
         self
@@ -76,6 +78,7 @@ impl XMLBuilder {
     /// # Arguments
     ///
     /// `encoding` - A String representing the encoding to use for the document.
+    #[must_use]
     pub fn encoding(mut self, encoding: String) -> Self {
         self.encoding = Some(encoding);
 
@@ -83,41 +86,47 @@ impl XMLBuilder {
     }
 
     /// Sets the standalone attribute for this XML document.
-    pub fn standalone(mut self, standalone: Option<bool>) -> Self {
+    #[must_use]
+    pub const fn standalone(mut self, standalone: Option<bool>) -> Self {
         self.standalone = standalone;
 
         self
     }
 
     /// Sets the XML indentation.
-    pub fn indent(mut self, indent: bool) -> Self {
+    #[must_use]
+    pub const fn indent(mut self, indent: bool) -> Self {
         self.indent = indent;
 
         self
     }
 
     /// Enables attributes sorting.
-    pub fn sort_attributes(mut self, sort: bool) -> Self {
+    #[must_use]
+    pub const fn sort_attributes(mut self, sort: bool) -> Self {
         self.sort_attributes = sort;
 
         self
     }
 
     /// Sets whether to break lines.
-    pub fn break_lines(mut self, break_lines: bool) -> Self {
+    #[must_use]
+    pub const fn break_lines(mut self, break_lines: bool) -> Self {
         self.break_lines = break_lines;
 
         self
     }
 
     /// Sets whether to expand empty tags.
-    pub fn expand_empty_tags(mut self, expand_empty_tags: bool) -> Self {
+    #[must_use]
+    pub const fn expand_empty_tags(mut self, expand_empty_tags: bool) -> Self {
         self.expand_empty_tags = expand_empty_tags;
 
         self
     }
 
     /// Builds a new XML structure by consuming self.
+    #[must_use]
     pub fn build(self) -> XML {
         XML::new(
             self.version,

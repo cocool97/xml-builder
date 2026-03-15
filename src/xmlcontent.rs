@@ -2,7 +2,7 @@ use crate::XMLElement;
 
 /// An enum value representing the types of XML contents
 #[derive(Clone)]
-pub(crate) enum XMLElementContent {
+pub enum XMLElementContent {
     /// No XML content.
     Empty,
 

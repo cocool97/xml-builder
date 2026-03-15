@@ -49,7 +49,7 @@ pub struct XML {
 }
 
 impl XML {
-    pub(crate) fn new(
+    pub(crate) const fn new(
         version: XMLVersion,
         encoding: Option<String>,
         standalone: Option<bool>,
@@ -74,7 +74,7 @@ impl XML {
     ///
     /// # Arguments
     ///
-    /// `element` - An XMLElement qualified as root for the XML document.
+    /// `element` - An `XMLElement` qualified as root for the XML document.
     pub fn set_root_element(&mut self, element: XMLElement) {
         self.root = Some(element);
     }
@@ -87,11 +87,11 @@ impl XML {
             writer,
             r#"<?xml version="{}"{encoding}{standalone}?>"#,
             self.version,
-            encoding = if let Some(encoding) = self.encoding {
-                format!(" encoding=\"{encoding}\"")
-            } else {
-                String::default()
-            },
+            encoding = self
+                .encoding
+                .map_or_else(String::default, |encoding| format!(
+                    " encoding=\"{encoding}\""
+                )),
             standalone = if let Some(standalone) = self.standalone
                 && standalone
             {

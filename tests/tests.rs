@@ -133,7 +133,7 @@ fn test_xml_version_1_1() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "Cannot insert child inside an element with text")]
 fn test_panic_child_for_text_element() {
     let xml = XMLBuilder::new().build();
 
@@ -161,7 +161,7 @@ fn test_complex_xml() {
     for i in 1..=2 {
         let mut room = XMLElement::new("room");
         room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {}", i)).unwrap();
+        room.add_text(format!("This is room number {i}")).unwrap();
 
         house.add_child(room).unwrap();
     }
@@ -178,7 +178,7 @@ fn test_complex_xml() {
 </house>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
-    assert_eq!(res, expected, "Both values does not match...")
+    assert_eq!(res, expected, "Both values does not match...");
 }
 
 // Here the `sort` attribute is set to the root, so everything should be sorted
@@ -197,7 +197,7 @@ fn test_complex_sorted_root_xml() {
         let mut room = XMLElement::new("room");
         room.add_attribute("size", &(i * 27).to_string());
         room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {}", i)).unwrap();
+        room.add_text(format!("This is room number {i}")).unwrap();
 
         house.add_child(room).unwrap();
     }
@@ -214,7 +214,7 @@ fn test_complex_sorted_root_xml() {
 </house>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
-    assert_eq!(res, expected, "Both values does not match...")
+    assert_eq!(res, expected, "Both values does not match...");
 }
 
 // Here the `sort` attribute is set to the an element only, so everything should not be sorted
@@ -234,7 +234,7 @@ fn test_complex_sorted_element_xml() {
         room.add_attribute("size", &(i * 27).to_string());
         room.add_attribute("city", ["Paris", "LA"][i - 1]);
         room.add_attribute("number", &i.to_string());
-        room.add_text(format!("This is room number {}", i)).unwrap();
+        room.add_text(format!("This is room number {i}")).unwrap();
 
         if i % 2 == 0 {
             room.enable_attributes_sorting();
@@ -256,5 +256,5 @@ fn test_complex_sorted_element_xml() {
 
     let res = std::str::from_utf8(&writer).unwrap();
 
-    assert_eq!(res, expected, "Both values does not match...")
+    assert_eq!(res, expected, "Both values does not match...");
 }

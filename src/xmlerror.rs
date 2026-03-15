@@ -14,15 +14,15 @@ pub enum XMLError {
 
 impl From<std::io::Error> for XMLError {
     fn from(e: std::io::Error) -> Self {
-        XMLError::IOError(e.to_string())
+        Self::IOError(e.to_string())
     }
 }
 
 impl Debug for XMLError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            XMLError::InsertError(e) => write!(f, "Error encountered during insertion: {}", e),
-            XMLError::IOError(e) => write!(f, "Error encountered during write: {}", e),
+            Self::InsertError(e) => write!(f, "Error encountered during insertion: {e}"),
+            Self::IOError(e) => write!(f, "Error encountered during write: {e}"),
         }
     }
 }

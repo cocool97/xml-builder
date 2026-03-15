@@ -21,13 +21,14 @@ pub struct XMLElement {
 }
 
 impl XMLElement {
-    /// Instantiates a new XMLElement object.
+    /// Instantiates a new `XMLElement` object.
     ///
     /// # Arguments
     ///
     /// * `name` - A string slice that holds the name of the XML element.
+    #[must_use]
     pub fn new(name: &str) -> Self {
-        XMLElement {
+        Self {
             name: name.into(),
             attributes: Vec::new(),
             sort_attributes: None,
@@ -36,16 +37,16 @@ impl XMLElement {
     }
 
     /// Enables attributes sorting.
-    pub fn enable_attributes_sorting(&mut self) {
+    pub const fn enable_attributes_sorting(&mut self) {
         self.sort_attributes = Some(true);
     }
 
     /// Disables attributes sorting.
-    pub fn disable_attributes_sorting(&mut self) {
+    pub const fn disable_attributes_sorting(&mut self) {
         self.sort_attributes = Some(false);
     }
 
-    /// Adds the given name/value attribute to the XMLElement.
+    /// Adds the given name/value attribute to the `XMLElement`.
     ///
     /// # Arguments
     ///
@@ -55,14 +56,14 @@ impl XMLElement {
         self.attributes.push((name.into(), escape_str(value)));
     }
 
-    /// Adds a new XMLElement child object to the references XMLElement.
+    /// Adds a new `XMLElement` child object to the references `XMLElement`.
     ///
-    /// Raises `XMLError` if trying to add a child to a text XMLElement.
+    /// Raises `XMLError` if trying to add a child to a text `XMLElement`.
     ///
     /// # Arguments
     ///
-    /// * `element` - A XMLElement object to add as child
-    pub fn add_child(&mut self, element: XMLElement) -> Result<()> {
+    /// * `element` - A `XMLElement` object to add as child
+    pub fn add_child(&mut self, element: Self) -> Result<()> {
         match self.content {
             XMLElementContent::Empty => {
                 self.content = XMLElementContent::Elements(vec![element]);
@@ -75,12 +76,12 @@ impl XMLElement {
                     "Cannot insert child inside an element with text".into(),
                 ));
             }
-        };
+        }
 
         Ok(())
     }
 
-    /// Adds text content to a XMLElement object.
+    /// Adds text content to a `XMLElement` object.
     ///
     /// Raises `XMLError` if trying to add text to a non-empty object.
     ///
@@ -97,7 +98,7 @@ impl XMLElement {
                     "Cannot insert text in a non-empty element".into(),
                 ));
             }
-        };
+        }
 
         Ok(())
     }
@@ -123,19 +124,19 @@ impl XMLElement {
             let mut result = String::new();
 
             for (k, v) in &attributes {
-                result = format!(r#"{} {}="{}""#, result, k, v);
+                result = format!("{result} {k}=\"{v}\"");
             }
             result
         }
     }
 
-    /// Renders an XMLElement object into the specified writer implementing Write trait.
+    /// Renders an `XMLElement` object into the specified writer implementing Write trait.
     ///
     /// Does not take ownership of the object.
     ///
     /// # Arguments
     ///
-    /// * `writer` - An object to render the referenced XMLElement to
+    /// * `writer` - An object to render the referenced `XMLElement` to
     pub fn render<W: Write>(
         &self,
         writer: &mut W,
@@ -154,11 +155,11 @@ impl XMLElement {
         )
     }
 
-    /// Internal method rendering and indenting a XMLELement object
+    /// Internal method rendering and indenting a `XMLElement` object
     ///
     /// # Arguments
     ///
-    /// * `writer` - An object to render the referenced XMLElement to
+    /// * `writer` - An object to render the referenced `XMLElement` to
     /// * `level` - An usize representing the depth of the XML tree. Used to indent the object.
     fn render_level<W: Write>(
         &self,
@@ -169,34 +170,31 @@ impl XMLElement {
         should_break_lines: bool,
         should_expand_empty_tags: bool,
     ) -> Result<()> {
-        let indent = match should_indent {
-            true => "\t".repeat(level),
-            false => "".into(),
+        let indent = if should_indent {
+            "\t".repeat(level)
+        } else {
+            String::new()
         };
-        let suffix = match should_break_lines {
-            true => "\n",
-            false => "",
-        };
+        let suffix = if should_break_lines { "\n" } else { "" };
 
         let attributes = self.attributes_as_string(should_sort);
 
         match &self.content {
-            XMLElementContent::Empty => match should_expand_empty_tags {
-                true => {
+            XMLElementContent::Empty => {
+                if should_expand_empty_tags {
                     write!(
                         writer,
                         "{}<{}{}></{}>{}",
                         indent, self.name, attributes, self.name, suffix
                     )?;
-                }
-                false => {
+                } else {
                     write!(
                         writer,
                         "{}<{}{} />{}",
                         indent, self.name, attributes, suffix
                     )?;
                 }
-            },
+            }
             XMLElementContent::Elements(elements) => {
                 write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
                 for elem in elements {
@@ -218,7 +216,7 @@ impl XMLElement {
                     indent, self.name, attributes, text, self.name, suffix
                 )?;
             }
-        };
+        }
 
         Ok(())
     }
