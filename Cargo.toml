@@ -2,7 +2,7 @@
 authors = ["LIAUD Corentin <corentinliaud26@gmail.com>"]
 categories = ["data-structures"]
 description = "Easy and highly-configurable XML builder/writer"
-edition = "2021"
+edition = "2024"
 keywords = ["xml"]
 license = "MIT"
 name = "xml-builder"
