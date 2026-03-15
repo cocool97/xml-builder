@@ -100,8 +100,7 @@ fn test_expand_empty_tags() {
     let mut writer: Vec<u8> = Vec::new();
     xml.generate(&mut writer).unwrap();
 
-    let expected =
-        "<?xml version=\"1.0\"?>\n<root>\n\t<element></element>\n</root>\n";
+    let expected = "<?xml version=\"1.0\"?>\n<root>\n\t<element></element>\n</root>\n";
     let res = std::str::from_utf8(&writer).unwrap();
 
     assert_eq!(res, expected, "Both values does not match...");

@@ -1,4 +1,4 @@
-use crate::{XMLVersion, XML};
+use crate::{XML, XMLVersion};
 
 /// Builder structure used to generate a custom XML structure.
 pub struct XMLBuilder {

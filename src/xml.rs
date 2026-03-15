@@ -10,9 +10,11 @@ pub struct XML {
     /// Defaults to `XML1.0`.
     version: XMLVersion,
 
-    /// The encoding to set for the document.
+    /// XML encoding attribute.
     ///
-    /// Defaults to `UTF-8`.
+    /// The optional encoding to set for the document.
+    ///
+    /// Defaults to `None`.
     encoding: Option<String>,
 
     /// XML standalone attribute.
@@ -81,19 +83,26 @@ impl XML {
     ///
     /// Consumes the XML object.
     pub fn generate<W: Write>(self, mut writer: W) -> Result<()> {
-        write!(writer, r#"<?xml version="{}""#, self.version)?;
+        write!(
+            writer,
+            r#"<?xml version="{}"{encoding}{standalone}?>"#,
+            self.version,
+            encoding = if let Some(encoding) = self.encoding {
+                format!(" encoding=\"{encoding}\"")
+            } else {
+                String::default()
+            },
+            standalone = if let Some(standalone) = self.standalone
+                && standalone
+            {
+                " standalone=\"yes\"".to_string()
+            } else {
+                String::default()
+            }
+        )?;
 
-        if let Some(encoding) = self.encoding {
-            write!(writer, r#" encoding="{}""#,  encoding)?;
-        }
-
-        if self.standalone.is_some() {
-            write!(writer, r#" standalone="yes""#)?;
-        };
-
-        write!(writer, "?>")?;
         if self.break_lines {
-            write!(writer, "\n")?;
+            writeln!(writer)?;
         }
 
         // And then XML elements if present...

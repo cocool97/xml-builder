@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::{escape_str, Result, XMLElementContent, XMLError};
+use crate::{Result, XMLElementContent, XMLError, escape_str};
 
 /// Structure representing an XML element field.
 #[derive(Clone)]
@@ -73,7 +73,7 @@ impl XMLElement {
             XMLElementContent::Text(_) => {
                 return Err(XMLError::InsertError(
                     "Cannot insert child inside an element with text".into(),
-                ))
+                ));
             }
         };
 
@@ -95,7 +95,7 @@ impl XMLElement {
             _ => {
                 return Err(XMLError::InsertError(
                     "Cannot insert text in a non-empty element".into(),
-                ))
+                ));
             }
         };
 
