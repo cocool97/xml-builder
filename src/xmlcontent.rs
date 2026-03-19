@@ -7,7 +7,11 @@ pub enum XMLElementContent {
     Empty,
 
     /// The content is a list of XML elements.
-    Elements(Vec<XMLElement>),
+    Mixed(Vec<XMLElementContent>),
+
+    /// The content is an XML element.
+    /// Needs to be boxed to avoid infinite size.
+    Element(Box<XMLElement>),
 
     /// The content is a textual string.
     Text(String),

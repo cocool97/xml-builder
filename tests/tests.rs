@@ -133,19 +133,31 @@ fn test_xml_version_1_1() {
 }
 
 #[test]
-#[should_panic(expected = "Cannot insert child inside an element with text")]
-fn test_panic_child_for_text_element() {
-    let xml = XMLBuilder::new().build();
+fn test_complex_mixed_children() {
+    let mut xml = XMLBuilder::new().build();
 
-    let mut xml_child = XMLElement::new("panic");
+    let mut xml_child = XMLElement::new("mixed");
     xml_child
-        .add_text("This should panic right after this...".into())
+        .add_text("Let's start with a text".into())
         .unwrap();
+    xml_child.add_attribute("complexity", "much");
 
-    let xml_child2 = XMLElement::new("sorry");
+    let xml_child2 = XMLElement::new("element_then");
     xml_child.add_child(xml_child2).unwrap();
 
-    xml.generate(std::io::stdout()).unwrap();
+    xml.set_root_element(xml_child);
+
+    let mut writer: Vec<u8> = Vec::new();
+    xml.generate(&mut writer).unwrap();
+
+    let expected = "<?xml version=\"1.0\"?>
+<mixed complexity=\"much\">
+\tLet's start with a text
+\t<element_then />
+</mixed>\n";
+    let res = std::str::from_utf8(&writer).unwrap();
+
+    assert_eq!(res, expected, "Both values does not match...")
 }
 
 #[test]
