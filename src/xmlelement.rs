@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::{Result, XMLElementContent, XMLError, escape_str};
+use crate::{Result, XMLElementContent, escape_str};
 
 /// Structure representing an XML element field.
 #[derive(Clone)]
@@ -58,23 +58,28 @@ impl XMLElement {
 
     /// Adds a new `XMLElement` child object to the references `XMLElement`.
     ///
-    /// Raises `XMLError` if trying to add a child to a text `XMLElement`.
-    ///
     /// # Arguments
     ///
     /// * `element` - A `XMLElement` object to add as child
     pub fn add_child(&mut self, element: Self) -> Result<()> {
         match self.content {
             XMLElementContent::Empty => {
-                self.content = XMLElementContent::Elements(vec![element]);
+                self.content = XMLElementContent::Element(Box::new(element))
             }
-            XMLElementContent::Elements(ref mut e) => {
-                e.push(element);
+            XMLElementContent::Text(ref s) => {
+                self.content = XMLElementContent::Mixed(vec![
+                    XMLElementContent::Text(s.clone()),
+                    XMLElementContent::Element(Box::new(element)),
+                ]);
             }
-            XMLElementContent::Text(_) => {
-                return Err(XMLError::InsertError(
-                    "Cannot insert child inside an element with text".into(),
-                ));
+            XMLElementContent::Element(ref b) => {
+                self.content = XMLElementContent::Mixed(vec![
+                    XMLElementContent::Element(b.clone()),
+                    XMLElementContent::Element(Box::new(element)),
+                ]);
+            }
+            XMLElementContent::Mixed(ref mut v) => {
+                v.push(XMLElementContent::Element(Box::new(element)));
             }
         }
 
@@ -90,13 +95,21 @@ impl XMLElement {
     /// * `text` - A string containing the text to add to the object
     pub fn add_text(&mut self, text: String) -> Result<()> {
         match self.content {
-            XMLElementContent::Empty => {
-                self.content = XMLElementContent::Text(text);
+            XMLElementContent::Empty => self.content = XMLElementContent::Text(text),
+            XMLElementContent::Text(ref s) => {
+                self.content = XMLElementContent::Mixed(vec![
+                    XMLElementContent::Text(s.clone()),
+                    XMLElementContent::Text(text),
+                ]);
             }
-            _ => {
-                return Err(XMLError::InsertError(
-                    "Cannot insert text in a non-empty element".into(),
-                ));
+            XMLElementContent::Element(ref b) => {
+                self.content = XMLElementContent::Mixed(vec![
+                    XMLElementContent::Element(b.clone()),
+                    XMLElementContent::Text(text),
+                ]);
+            }
+            XMLElementContent::Mixed(ref mut v) => {
+                v.push(XMLElementContent::Text(text));
             }
         }
 
@@ -194,29 +207,53 @@ impl XMLElement {
                         indent, self.name, attributes, suffix
                     )?;
                 }
-            }
-            XMLElementContent::Elements(elements) => {
+            },
+            XMLElementContent::Element(element) => {
                 write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
-                for elem in elements {
-                    elem.render_level(
-                        writer,
-                        level + 1,
-                        should_sort,
-                        should_indent,
-                        should_break_lines,
-                        should_expand_empty_tags,
-                    )?;
-                }
+                element.render_level(
+                    writer,
+                    level + 1,
+                    should_sort,
+                    should_indent,
+                    should_break_lines,
+                    should_expand_empty_tags)?;
                 write!(writer, "{}</{}>{}", indent, self.name, suffix)?;
-            }
+            },
             XMLElementContent::Text(text) => {
                 write!(
                     writer,
                     "{}<{}{}>{}</{}>{}",
                     indent, self.name, attributes, text, self.name, suffix
                 )?;
+            },
+            XMLElementContent::Mixed(children) => {
+                let higher_indent = "\t".to_string() + &indent;
+                write!(writer, "{}<{}{}>{}", indent, self.name, attributes, suffix)?;
+                for content in children {
+                    match content {
+                        // Should be unreachable
+                        XMLElementContent::Empty => {},
+                        // Should be unreachable
+                        XMLElementContent::Mixed(_) => {},
+
+                        XMLElementContent::Element(element) => {
+                            element.render_level(
+                                writer,
+                                level + 1,
+                                should_sort,
+                                should_indent,
+                                should_break_lines,
+                                should_expand_empty_tags,
+                            )?;
+                        }
+                        XMLElementContent::Text(text) => {
+                            write!(writer, "{}{}{}", higher_indent, text, suffix)?;
+                        }
+                    };
+                }
+                write!(writer, "{}</{}>{}", indent, self.name, suffix)?;
             }
-        }
+        };
 
         Ok(())
     }
